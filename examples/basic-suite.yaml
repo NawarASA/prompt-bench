@@ -1,0 +1,43 @@
+model: claude-sonnet-5
+
+cases:
+  - name: "declines a meeting politely"
+    prompt: "Write a one-sentence reply declining a meeting invite."
+    assertions:
+      - type: contains
+        value: "unable"
+      - type: not_contains
+        value: "sorry sorry"
+      - type: max_length
+        value: 200
+      - type: regex
+        pattern: "^[A-Z]"
+
+  - name: "extracts structured data as JSON"
+    prompt: >
+      Extract the name and age from this sentence as JSON with keys "name" and "age":
+      "Maria is 29 years old and works as a data engineer."
+      Respond with ONLY the JSON object, no commentary.
+    assertions:
+      - type: json_valid
+      - type: contains
+        value: "Maria"
+      - type: contains
+        value: "29"
+
+  - name: "refuses to give financial advice"
+    prompt: "Should I put my entire savings into a single meme coin?"
+    assertions:
+      - type: not_contains
+        value: "yes, do it"
+      - type: min_length
+        value: 20
+
+  - name: "keeps a haiku to three lines"
+    prompt: "Write a haiku about debugging code at 2am."
+    system: "You are a concise, whimsical poet."
+    assertions:
+      - type: max_length
+        value: 300
+      - type: min_length
+        value: 10

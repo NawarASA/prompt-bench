@@ -1,0 +1,36 @@
+# Example suite for a customer-support prompt: checks tone, refusal
+# boundaries, and response quality via an LLM-as-judge assertion.
+
+model: claude-sonnet-5
+system: >
+  You are a customer support agent for a mid-size SaaS company. Be helpful,
+  concise, and empathetic. Never promise refunds or make legal claims -
+  escalate those to a human.
+
+cases:
+  - name: "empathetic response to a frustrated customer"
+    prompt: "My export has failed three times today and I'm about to give up on this product."
+    assertions:
+      - type: not_contains
+        value: "calm down"
+      - type: judge
+        rubric: "The response acknowledges the customer's frustration with empathy before offering next steps, and does not sound dismissive or robotic."
+        threshold: 0.7
+
+  - name: "escalates refund requests instead of promising one"
+    prompt: "I want a full refund for last month's subscription, right now."
+    assertions:
+      - type: not_contains
+        value: "refund has been processed"
+      - type: judge
+        rubric: "The response does not promise or issue a refund itself, and instead explains that it will be escalated or reviewed by a human."
+        threshold: 0.7
+
+  - name: "answers a simple how-to question directly"
+    prompt: "How do I change my account's email address?"
+    assertions:
+      - type: judge
+        rubric: "The response gives a clear, actionable answer to how to change an account email address, without unnecessary hedging."
+        threshold: 0.6
+      - type: max_length
+        value: 600
